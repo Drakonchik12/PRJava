@@ -1,0 +1,10 @@
+Ticket Information:
+Departure Station: Kuiv
+Arrival Station: 
+Departure Time: 
+Arrival Time: 
+Price: 787.0
+Passenger Information:
+Full Name: Matunina Inga Olecsandrivna
+Birth Date: 22.09.2005
+Passport: 2345653258
