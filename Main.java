@@ -1,4 +1,3 @@
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -110,20 +109,20 @@ public class Main {
         ticket.updatePassengerDetails(passenger);
 
         // Update the file name to include the passenger's last name
-        String fileName = "ticket_" + lastName + ".txt";
-        ticket.writeToFile(fileName);
+        String fileName = "ticket_passenger.csv";
+        ticket.writeToFileCSV(fileName);
     }
 
     private static void saveTicketWithoutPassengerDetails(Ticket ticket) {
-        ticket.writeToFile("ticket_no_passenger.txt");
-        System.out.println("Ticket information (without passenger details) written to file: ticket_no_passenger.txt");
+        ticket.writeToFileCSV("ticket_no_passenger.csv");
+        System.out.println("Ticket information (without passenger details) written to file: ticket_no_passenger.csv");
     }
 
     private static void checkTicketByLastName(Scanner scanner, Train train) {
         System.out.print("Enter last name to check for a ticket: ");
         String lastName = scanner.nextLine();
 
-        String fileName = "ticket_" + lastName + ".txt";
+        String fileName = "ticket_passenger.csv";
         File file = new File(fileName);
 
         if (file.exists()) {
@@ -151,7 +150,7 @@ public class Main {
         System.out.print("Enter arrival station: ");
         String arrivalStation = scanner.nextLine();
 
-        List<Ticket> matchingTickets = findTicketsByStationsInFile("ticket_no_passenger.txt", departureStation, arrivalStation);
+        List<Ticket> matchingTickets = findTicketsByStationsInFile("ticket_no_passenger.csv", departureStation, arrivalStation);
 
         if (!matchingTickets.isEmpty()) {
             System.out.println("Found matching tickets:");
@@ -165,105 +164,74 @@ public class Main {
 
     private static List<Ticket> findTicketsByStationsInFile(String fileName, String departureStation, String arrivalStation) {
         List<Ticket> matchingTickets = new ArrayList<>();
-    
+
         try (Scanner fileScanner = new Scanner(new File(fileName))) {
-        // Проверка на наличие следующей строки перед попыткой ее считать
-       
+            // Проверка на наличие следующей строки перед попыткой ее считать
             while (fileScanner.hasNextLine()) {
                 if (fileScanner.hasNextLine()) {
-                String[] trainNameParts = fileScanner.nextLine().split(":");
-                String trainName = (trainNameParts.length > 1) ? trainNameParts[1].trim() : "";
-    
-                String[] trainNumberParts = fileScanner.nextLine().split(":");
-                String trainNumber = (trainNumberParts.length > 1) ? trainNumberParts[1].trim() : "";
-    
-                String[] depStationParts = fileScanner.nextLine().split(":");
-                String depStationFromFile = (depStationParts.length > 1) ? depStationParts[1].trim() : "";
-    
-                String[] arrStationParts = fileScanner.nextLine().split(":");
-                String arrStationFromFile = (arrStationParts.length > 1) ? arrStationParts[1].trim() : "";
+                    String[] ticketParts = fileScanner.nextLine().split(",");
+                    String trainName = (ticketParts.length > 0) ? ticketParts[0].trim() : "";
+                    String trainNumber = (ticketParts.length > 1) ? ticketParts[1].trim() : "";
+                    String depStationFromFile = (ticketParts.length > 2) ? ticketParts[2].trim() : "";
+                    String arrStationFromFile = (ticketParts.length > 3) ? ticketParts[3].trim() : "";
+                    String depTimeLineFromFile = (ticketParts.length > 4) ? ticketParts[4].trim() : "";
+                    String arrTimeLineFromFile = (ticketParts.length > 5) ? ticketParts[5].trim() : "";
+                    double priceFromFile = (ticketParts.length > 6) ? Double.parseDouble(ticketParts[6].trim()) : 0.0;
 
-                String[]  depTimeLine = fileScanner.nextLine().split(":");
-                String  depTimeLineFromFile = (depTimeLine.length > 1) ? depTimeLine[1].trim() : "";
+                    Train ticketTrain = new Train(trainName, trainNumber);
+                    Ticket ticket = new Ticket(ticketTrain, depStationFromFile, arrStationFromFile, depTimeLineFromFile, arrTimeLineFromFile, priceFromFile);
 
-                String[]  arrTimeLine = fileScanner.nextLine().split(":");
-                String  arrTimeLineFromFile = (arrTimeLine.length > 1) ? arrTimeLine[1].trim() : "";
-
-                String priceLine = fileScanner.nextLine();
-                double priceFromFile = Double.parseDouble(priceLine.substring(priceLine.indexOf(":") + 1).trim());
-
-                Train ticketTrain = new Train(trainName, trainNumber);
-                Ticket ticket= new Ticket(ticketTrain, depStationFromFile, arrStationFromFile, depTimeLineFromFile, arrTimeLineFromFile, priceFromFile);
-
-    
                     matchingTickets.add(ticket);
-        } 
-        else {
-            // Прерывание цикла, если больше нет строк
-            break;
-        }
+                } else {
+                    // Прерывание цикла, если больше нет строк
+                    break;
+                }
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-    
+
         return matchingTickets;
     }
 
-    // private static String extractTime(String line) {
-    //     // Assuming the time format is HH:mm
-    //     String regex = ".*: (\\d{2}):(\\d{2})";
-    //     java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
-    //     java.util.regex.Matcher matcher = pattern.matcher(line);
-    
-    //     if (matcher.find()) {
-    //         String hours = matcher.group(1);
-    //         String minutes = matcher.group(2);
-    //         return hours + ":" + minutes;
-    //     } else {
-    //         return "";
-    //     }
-    // }
-   
-        private static void selectTicketAndAddPassenger(Scanner scanner) {
-            System.out.print("Enter departure station: ");
-            String departureStation = scanner.nextLine();
+    private static void selectTicketAndAddPassenger(Scanner scanner) {
+        System.out.print("Enter departure station: ");
+        String departureStation = scanner.nextLine();
 
-            System.out.print("Enter arrival station: ");
-            String arrivalStation = scanner.nextLine();
+        System.out.print("Enter arrival station: ");
+        String arrivalStation = scanner.nextLine();
 
-            List<Ticket> matchingTickets = findTicketsByStationsInFile("ticket_no_passenger.txt", departureStation, arrivalStation);
+        List<Ticket> matchingTickets = findTicketsByStationsInFile("ticket_no_passenger.csv", departureStation, arrivalStation);
 
-            if (!matchingTickets.isEmpty()) {
-                System.out.println("Found matching tickets:");
-                for (int i = 0; i < matchingTickets.size(); i++) {
-                    System.out.println((i + 1) + ". ");
-                    matchingTickets.get(i).displayTicketInfo();
-                }
+        if (!matchingTickets.isEmpty()) {
+            System.out.println("Found matching tickets:");
+            for (int i = 0; i < matchingTickets.size(); i++) {
+                System.out.println((i + 1) + ". ");
+                matchingTickets.get(i).displayTicketInfo();
+            }
 
-                System.out.print("Do you want to take a ticket? (yes/no): ");
-                String choice = scanner.nextLine().toLowerCase();
+            System.out.print("Do you want to take a ticket? (yes/no): ");
+            String choice = scanner.nextLine().toLowerCase();
 
-                if (choice.equals("yes")) {
-                    System.out.print("Choose a ticket (enter the corresponding number): ");
-                    int selectedTicketIndex = scanner.nextInt();
-                    scanner.nextLine(); // consume the newline character
+            if (choice.equals("yes")) {
+                System.out.print("Choose a ticket (enter the corresponding number): ");
+                int selectedTicketIndex = scanner.nextInt();
+                scanner.nextLine(); // consume the newline character
 
-                    if (selectedTicketIndex > 0 && selectedTicketIndex <= matchingTickets.size()) {
-                        Ticket selectedTicket = matchingTickets.get(selectedTicketIndex - 1);
-                        associatePassengerWithTicket(scanner, selectedTicket);
-                        removeTicketFromFile("ticket_no_passenger.txt", selectedTicket);
-                    } else {
-                        System.out.println("Invalid selection. Returning to the main menu.");
-                    }
+                if (selectedTicketIndex > 0 && selectedTicketIndex <= matchingTickets.size()) {
+                    Ticket selectedTicket = matchingTickets.get(selectedTicketIndex - 1);
+                    associatePassengerWithTicket(scanner, selectedTicket);
+                    removeTicketFromFile("ticket_no_passenger.csv", selectedTicket);
                 } else {
-                    System.out.println("Returning to the main menu.");
+                    System.out.println("Invalid selection. Returning to the main menu.");
                 }
             } else {
-                System.out.println("No matching tickets found for the given stations.");
+                System.out.println("Returning to the main menu.");
             }
+        } else {
+            System.out.println("No matching tickets found for the given stations.");
         }
-    
+    }
 
     private static void removeTicketFromFile(String fileName, Ticket ticketToRemove) {
         List<Ticket> remainingTickets = new ArrayList<>();
@@ -271,8 +239,8 @@ public class Main {
         try (Scanner fileScanner = new Scanner(new File(fileName))) {
             while (fileScanner.hasNextLine()) {
                 String currentLine = fileScanner.nextLine();
-                if (!currentLine.equals(ticketToRemove.toString())) {
-                    remainingTickets.add(ticketFromString(currentLine));
+                if (!currentLine.equals(ticketToStringCSV(ticketToRemove))) {
+                    remainingTickets.add(ticketFromStringCSV(currentLine));
                 }
             }
         } catch (FileNotFoundException e) {
@@ -282,24 +250,61 @@ public class Main {
         // Rewrite the file with remaining tickets
         try (PrintWriter writer = new PrintWriter(fileName)) {
             for (Ticket ticket : remainingTickets) {
-                writer.println(ticket.toString());
+                writer.println(ticketToStringCSV(ticket));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    private static Ticket ticketFromString(String ticketString) {
-        String[] parts = ticketString.split(":");
-        String trainName = (parts.length > 1) ? parts[1].trim() : "";
-        String trainNumber = (parts.length > 2) ? parts[2].trim() : "";
-        String departureStation = (parts.length > 3) ? parts[3].trim() : "";
-        String arrivalStation = (parts.length > 4) ? parts[4].trim() : "";
-        String departureTime = (parts.length > 5) ? parts[5].trim() : "";
-        String arrivalTime = (parts.length > 6) ? parts[6].trim() : "";
-        double price = (parts.length > 7) ? Double.parseDouble(parts[7].trim()) : 0.0;
+    private static String ticketToStringCSV(Ticket ticket) {
+        StringBuilder csvLine = new StringBuilder();
+
+        // Добавляем информацию о поезде
+        csvLine.append(ticket.getTrain().getTrainName()).append(",");
+        csvLine.append(ticket.getTrain().getTrainNumber()).append(",");
+        csvLine.append(ticket.getDepartureStation()).append(",");
+        csvLine.append(ticket.getArrivalStation()).append(",");
+        csvLine.append(ticket.getDepartureTime()).append(",");
+        csvLine.append(ticket.getArrivalTime()).append(",");
+        csvLine.append(ticket.getPrice());
+
+        // Добавляем информацию о пассажире, если он есть
+        Passenger passenger = ticket.getPassenger();
+        if (passenger != null) {
+            csvLine.append(",");
+            csvLine.append(passenger.getFullName()).append(",");
+            csvLine.append(passenger.getBirthDate()).append(",");
+            csvLine.append(passenger.getPassport());
+        }
+
+        return csvLine.toString();
+    }
+
+    private static Ticket ticketFromStringCSV(String ticketString) {
+        String[] parts = ticketString.split(",");
+        String trainName = (parts.length > 0) ? parts[0].trim() : "";
+        String trainNumber = (parts.length > 1) ? parts[1].trim() : "";
+        String departureStation = (parts.length > 2) ? parts[2].trim() : "";
+        String arrivalStation = (parts.length > 3) ? parts[3].trim() : "";
+        String departureTime = (parts.length > 4) ? parts[4].trim() : "";
+        String arrivalTime = (parts.length > 5) ? parts[5].trim() : "";
+        double price = (parts.length > 6) ? Double.parseDouble(parts[6].trim()) : 0.0;
 
         Train ticketTrain = new Train(trainName, trainNumber);
-        return new Ticket(ticketTrain, departureStation, arrivalStation, departureTime, arrivalTime, price);
+        Ticket ticket = new Ticket(ticketTrain, departureStation, arrivalStation, departureTime, arrivalTime, price);
+
+        // Если есть информация о пассажире, добавляем ее
+        if (parts.length > 7) {
+            String firstName = parts[7].trim();
+            String lastName = parts[8].trim();
+            String patronymic = parts[9].trim();
+            String birthDate = parts[10].trim();
+            String passport = parts[11].trim();
+            Passenger passenger = new Passenger(firstName, lastName, patronymic, birthDate, passport);
+            ticket.updatePassengerDetails(passenger);
+        }
+
+        return ticket;
     }
 }

@@ -9,7 +9,6 @@ public class Ticket {
     private String arrivalTime;
     private double price;
     private Passenger passenger;
-    
 
     public Ticket(Train train, String departureStation, String arrivalStation, String departureTime, String arrivalTime, double price) {
         this.departureStation = departureStation;
@@ -19,8 +18,6 @@ public class Ticket {
         this.price = price;
         this.train = train;
     }
-
-    
 
     public void displayTicketInfo() {
         System.out.println("Ticket Information:");
@@ -38,27 +35,31 @@ public class Ticket {
             System.out.println("Birth Date: " + passenger.getBirthDate());
             System.out.println("Passport: " + passenger.getPassport());
         }
-
-     
     }
 
-    public void writeToFile(String fileName) {
+    public void writeToFileCSV(String fileName) {
         try (FileWriter writer = new FileWriter(fileName, true)) {
-            writer.write("Ticket Information:\n");
-            writer.write("Train Name: " + train.getTrainName() + "\n");
-            writer.write("Train Number: " + train.getTrainNumber() + "\n");
-            writer.write("Departure Station: " + departureStation + "\n");
-            writer.write("Arrival Station: " + arrivalStation + "\n");
-            writer.write("Departure Time: " + departureTime + "\n");
-            writer.write("Arrival Time: " + arrivalTime + "\n");
-            writer.write("Price: " + price + "\n");
+            StringBuilder csvLine = new StringBuilder();
 
+            // Добавляем информацию о поезде
+            csvLine.append(train.getTrainName()).append(",");
+            csvLine.append(train.getTrainNumber()).append(",");
+            csvLine.append(departureStation).append(",");
+            csvLine.append(arrivalStation).append(",");
+            csvLine.append(departureTime).append(",");
+            csvLine.append(arrivalTime).append(",");
+            csvLine.append(price);
+
+            // Добавляем информацию о пассажире, если он есть
             if (passenger != null) {
-                writer.write("Passenger Information:\n");
-                writer.write("Full Name: " + passenger.getFullName() + "\n");
-                writer.write("Birth Date: " + passenger.getBirthDate() + "\n");
-                writer.write("Passport: " + passenger.getPassport() + "\n");
+                csvLine.append(",");
+                csvLine.append(passenger.getFullName()).append(",");
+                csvLine.append(passenger.getBirthDate()).append(",");
+                csvLine.append(passenger.getPassport());
             }
+
+            // Записываем строку в файл и добавляем новую строку
+            writer.write(csvLine.toString() + "\n");
 
             System.out.println("Ticket information written to file: " + fileName);
         } catch (IOException e) {
@@ -81,8 +82,20 @@ public class Ticket {
     public String getArrivalStation() {
         return arrivalStation;
     }
+    public String getDepartureTime() {
+        return departureTime;
+    }
+
+    public String getArrivalTime() {
+        return arrivalTime;
+    }
 
     public Train getTrain() {
         return train;
+    }
+
+    public double getPrice() {
+         return price;
+        
     }
 }
