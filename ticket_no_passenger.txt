@@ -1,0 +1,8 @@
+Ticket Information:
+Train Name: Dilo
+Train Number: 231
+Departure Station: London
+Arrival Station: Hogsmit
+Departure Time: pm
+Arrival Time: am
+Price: 200.0
